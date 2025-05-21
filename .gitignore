@@ -3,6 +3,10 @@
 /firebase-debug.*.log
 .firebaserc
 
+# Firebase credentials
+/secrets/
+*.json
+
 # Firebase Hosting
 /firebase.json
 *.cache
@@ -17,7 +21,6 @@ hosting/.cache
 /firebase-*.zip
 /.firebase/
 /emulator-ui/
-
 # Logs
 *.log
 npm-debug.log*
