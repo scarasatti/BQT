@@ -7,11 +7,12 @@ cred = credentials.Certificate("secrets/chave-firebase.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# Carrega a questão do arquivo JSON
-with open("questoes/questao.json", encoding="utf-8") as f:
-    dados = json.load(f)
+def subir_para_o_firebase():
+    # Carrega a questão do arquivo JSON
+    with open("questoes/questao_temp.json", encoding="utf-8") as f:
+        dados = json.load(f)
 
-# Envia para a coleção "questoes"
-db.collection("questoes").add(dados)
+    # Envia para a coleção "questoes"
+    db.collection("questoes").add(dados)
 
-print("Questão enviada com sucesso.")
+    print("Questão enviada com sucesso.")
