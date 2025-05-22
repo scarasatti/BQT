@@ -1,6 +1,4 @@
-import json
 import os
-from uuid import uuid4
 from FireBaseController import *
 
 def setar_tipo():
@@ -64,8 +62,54 @@ def criar_questao():
     with open(caminho, "w", encoding="utf-8") as f:
         json.dump(questao, f, ensure_ascii=False, indent=2)
 
-    print(f"\n✅ Questão salva em: {caminho} (sobrescrita)")
+    print(f"Questão salva em: {caminho} (sobrescrita)")
     subir_para_o_firebase()
+def buscar_questoes(materia=None, dificuldade=None, tempo_execucao=None):
+    print("\n🔎 Buscando questões com os filtros:")
+    filtros = []
+    colecao = db.collection("questoes")
+
+    if materia:
+        colecao = colecao.where("materia", "==", materia)
+        filtros.append(f"Matéria: {materia}")
+    if dificuldade:
+        colecao = colecao.where("dificuldade", "==", dificuldade)
+        filtros.append(f"Dificuldade: {dificuldade}")
+    if tempo_execucao:
+        colecao = colecao.where("tempo_execucao", "==", tempo_execucao)
+        filtros.append(f"Tempo: {tempo_execucao} min")
+
+    print(", ".join(filtros) if filtros else "Sem filtros — buscando todas as questões")
+
+    resultados = colecao.stream()
+    questoes = []
+
+    for doc in resultados:
+        dados = doc.to_dict()
+        questoes.append(dados)
+        print(f"\n📝 Enunciado: {dados.get('enunciado')}")
+        print(f"Tipo: {dados.get('tipo')}")
+        print(f"Matéria: {dados.get('materia')}")
+        print(f"Dificuldade: {dados.get('dificuldade')}")
+        print(f"Tempo: {dados.get('tempo_execucao')} min")
+
+    if not questoes:
+        print("❌ Nenhuma questão encontrada com os filtros aplicados.")
+
+    return questoes
+
 
 if __name__ == "__main__":
-    criar_questao()
+    opcao = input("Escolha uma opção:\n1 - Criar nova questão\n2 - Buscar questões\n> ").strip()
+
+    if opcao == "1":
+        criar_questao()
+    elif opcao == "2":
+        materia = input("Filtrar por matéria (ou deixe em branco): ").strip() or None
+        dificuldade = input("Filtrar por dificuldade (1, 2, 3 - ou deixe em branco): ").strip()
+        dificuldade = int(dificuldade) if dificuldade else None
+        tempo = input("Filtrar por tempo de execução (em minutos - ou deixe em branco): ").strip()
+        tempo = int(tempo) if tempo else None
+
+        buscar_questoes(materia, dificuldade, tempo)
+
